@@ -1,14 +1,16 @@
 plugins {
     java
     application
-    id("org.openjfx.javafxplugin") version "0.1.0"
 }
 
 group = "net.notjustanna"
 version = "1.0-SNAPSHOT"
+val mainClass = "net.notjustanna.Main"
+
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
@@ -25,11 +27,27 @@ dependencies {
     implementation("org.slf4j:jul-to-slf4j")
     implementation("ch.qos.logback:logback-classic:1.5.17")
     implementation(project(":ui"))
+    implementation("com.github.webview:webview_java:1.3.0")
 }
 
-javafx {
-    version = "23.0.2"
-    modules("javafx.base", "javafx.controls", "javafx.web")
+tasks {
+    val jar by getting(Jar::class) {}
+    val assemble by getting
+
+    val copyLibs by creating(Copy::class) {
+        from(configurations.runtimeClasspath)
+        into("build/libs/libs")
+    }
+
+    copyLibs.dependsOn(jar)
+    assemble.dependsOn(copyLibs)
+
+    jar.manifest {
+        attributes(
+            "Main-Class" to mainClass,
+            "Class-Path" to configurations.runtimeClasspath.get().files.joinToString(" ") { "libs/${it.name}" }
+        )
+    }
 }
 
-application.mainClass = "net.notjustanna.Main"
+application.mainClass = mainClass

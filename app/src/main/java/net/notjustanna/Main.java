@@ -1,19 +1,13 @@
 package net.notjustanna;
 
+import dev.webview.Webview;
 import io.helidon.config.Config;
 import io.helidon.logging.common.LogConfig;
 import io.helidon.webserver.WebServer;
 import io.helidon.webserver.http.HttpRouting;
 import io.helidon.webserver.staticcontent.StaticContentFeature;
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.scene.Scene;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
-import javafx.scene.web.WebView;
-import javafx.stage.Stage;
 
-public final class Main extends Application {
+public final class Main {
     public static Config config = Config.create();
     public static WebServer server;
 
@@ -33,32 +27,19 @@ public final class Main extends Application {
             )
             .build()
             .start();
-        launch(args);
+
+        Webview view = new Webview(true);
+
+        view.setSize(960, 600);
+        view.setTitle("WebView Front-end");
+        view.loadURL("http://localhost:" + server.port() + "/");
+
+        view.run();
+        view.close();
+        server.stop();
     }
 
     static void routing(HttpRouting.Builder routing) {
         routing.register("/greet", new GreetService(config));
-    }
-
-    public void start(Stage primaryStage) {
-        primaryStage.setOnCloseRequest(e -> {
-            Platform.exit();
-            server.stop();
-        });
-
-        primaryStage.setTitle("JavaFX Front-end");
-
-        WebView webView = new WebView();
-
-        var engine = webView.getEngine();
-
-        engine.load("http://localhost:" + server.port() + "/");
-
-        VBox vBox = new VBox(webView);
-        VBox.setVgrow(webView, Priority.ALWAYS);
-        Scene scene = new Scene(vBox, 960, 600);
-
-        primaryStage.setScene(scene);
-        primaryStage.show();
     }
 }
