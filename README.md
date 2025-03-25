@@ -2,6 +2,8 @@
 
 Sample application with a backend in Java, a frontend in Java and being displayed in a [Webview](https://github.com/webview/webview).
 
+![Image showing the project application](https://github.com/NotJustAnna/all-you-need-is-java/blob/master/img.png?raw=true)
+
 Because ***all you need is Java***.
 
 ## What?
