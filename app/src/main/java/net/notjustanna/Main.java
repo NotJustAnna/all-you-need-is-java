@@ -1,45 +1,32 @@
 package net.notjustanna;
 
+import com.linecorp.armeria.common.HttpResponse;
+import com.linecorp.armeria.server.Server;
+import com.linecorp.armeria.server.file.FileService;
 import dev.webview.Webview;
-import io.helidon.config.Config;
-import io.helidon.logging.common.LogConfig;
-import io.helidon.webserver.WebServer;
-import io.helidon.webserver.http.HttpRouting;
-import io.helidon.webserver.staticcontent.StaticContentFeature;
+
+import java.util.Random;
 
 public final class Main {
-    public static Config config = Config.create();
-    public static WebServer server;
-
     public static void main(String[] args) {
-        LogConfig.configureRuntime();
+        var port = new Random().nextInt(49152,65535);
+        var builder = Server.builder();
 
-        server = WebServer.builder()
-            .config(config.get("server"))
-            .routing(Main::routing)
-            .addFeature(
-                StaticContentFeature.builder().addClasspath(
-                        cl -> cl.location("net/notjustanna/ui")
-                            .welcome("index.html")
-                            .context("/")
-                    )
-                    .build()
-            )
-            .build()
-            .start();
+        builder.http(port);
+        builder.service("/greet", (ctx, req) -> HttpResponse.of("Hello from Armeria!"));
+        builder.serviceUnder("/", FileService.of(ClassLoader.getSystemClassLoader(), "/net/notjustanna/ui"));
+
+        var server = builder.build();
+        server.start().join();
 
         Webview view = new Webview(true);
 
         view.setSize(960, 600);
         view.setTitle("WebView Front-end");
-        view.loadURL("http://localhost:" + server.port() + "/");
+        view.loadURL("http://localhost:" + port + "/");
 
         view.run();
         view.close();
-        server.stop();
-    }
-
-    static void routing(HttpRouting.Builder routing) {
-        routing.register("/greet", new GreetService(config));
+        server.stop().join();
     }
 }

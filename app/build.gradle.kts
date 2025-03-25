@@ -1,53 +1,47 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     java
     application
+    id("com.gradleup.shadow") version "9.0.0-beta11"
 }
 
 group = "net.notjustanna"
 version = "1.0-SNAPSHOT"
-val mainClass = "net.notjustanna.Main"
-
 
 repositories {
     mavenCentral()
     maven { url = uri("https://jitpack.io") }
 }
 
+application.mainClass = "net.notjustanna.Main"
+
 dependencies {
-    implementation(enforcedPlatform("io.helidon:helidon-dependencies:4.2.0"))
-    implementation("io.helidon.webserver:helidon-webserver")
-    implementation("io.helidon.webserver:helidon-webserver-static-content")
-    implementation("io.helidon.http.media:helidon-http-media-jsonp")
-    implementation("io.helidon.webserver.observe:helidon-webserver-observe-health")
-    implementation("io.helidon.webserver.observe:helidon-webserver-observe-metrics")
-    implementation("io.helidon.config:helidon-config-yaml")
-    implementation("io.helidon.health:helidon-health-checks")
-    implementation("org.slf4j:slf4j-api")
-    implementation("io.helidon.logging:helidon-logging-slf4j")
-    implementation("org.slf4j:jul-to-slf4j")
-    implementation("ch.qos.logback:logback-classic:1.5.17")
-    implementation(project(":ui"))
+    implementation("com.linecorp.armeria:armeria:1.32.3")
+    implementation("com.linecorp.armeria:armeria-logback:1.32.3")
     implementation("com.github.webview:webview_java:1.3.0")
-}
-
-tasks {
-    val jar by getting(Jar::class) {}
-    val assemble by getting
-
-    val copyLibs by creating(Copy::class) {
-        from(configurations.runtimeClasspath)
-        into("build/libs/libs")
-    }
-
-    copyLibs.dependsOn(jar)
-    assemble.dependsOn(copyLibs)
-
-    jar.manifest {
-        attributes(
-            "Main-Class" to mainClass,
-            "Class-Path" to configurations.runtimeClasspath.get().files.joinToString(" ") { "libs/${it.name}" }
-        )
+    runtimeOnly("ch.qos.logback:logback-classic:1.5.17")
+    runtimeOnly(project(":ui")) {
+        isTransitive = false
     }
 }
 
-application.mainClass = mainClass
+// This is a convenience more than anything else.
+// Configures the shadowJar task to merge service files and exclude useless files from META-INF.
+tasks.withType(ShadowJar::class) {
+    mergeServiceFiles()
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    exclude(
+        "META-INF/maven/**",
+        "META-INF/license/**",
+        "META-INF/*.versions.properties",
+        "META-INF/LGPL2.1",
+        "META-INF/AL2.0",
+        "META-INF/*-LICENSE",
+        "META-INF/LICENSE",
+        "META-INF/LICENSE.txt",
+        "META-INF/*-NOTICE",
+        "META-INF/NOTICE",
+        "META-INF/NOTICE.txt",
+    )
+}

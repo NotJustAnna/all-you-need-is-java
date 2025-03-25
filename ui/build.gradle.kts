@@ -1,4 +1,3 @@
-
 import com.github.gradle.node.npm.task.NpxTask
 import org.teavm.gradle.TeaVMPlugin.JS_TASK_NAME
 
@@ -29,12 +28,12 @@ teavm {
 
 node {
     download = true
-    version = "18.17.1"
+    version = "22.14.0"
 }
 
 tasks.create("tailwindcss", NpxTask::class) {
-    val input = "${projectDir}/src/main/resources/$OUTPUT_PREFIX/tailwind.css"
-    val output = "${projectDir}/build/generated/tailwindcss/$OUTPUT_PREFIX/index.css"
+    val input = File("${projectDir}/src/main/resources/$OUTPUT_PREFIX/tailwind.css").absolutePath
+    val output = File("${projectDir}/build/generated/tailwindcss/$OUTPUT_PREFIX/index.css").absolutePath
     sourceSets.main.get().allSource.srcDirs.forEach(inputs::dir)
     inputs.file(input)
     outputs.file(output)

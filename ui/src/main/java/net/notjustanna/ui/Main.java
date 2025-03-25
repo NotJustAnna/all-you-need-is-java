@@ -15,8 +15,13 @@ public class Main {
         String host = Window.current().getLocation().getHost();
 
         var xhr = new XMLHttpRequest();
-        xhr.addEventListener("load", evt -> System.out.println("Response: " + xhr.getResponseText()));
-        xhr.open("GET", "http://" + host + "/greet/Joe");
+        xhr.addEventListener("load", evt -> {
+            document.getBody().appendChild(
+                document.createElement("div")
+                    .withText("Back-end told me: " + xhr.getResponseText())
+            );
+        });
+        xhr.open("GET", "http://" + host + "/greet");
         xhr.send();
     }
 }

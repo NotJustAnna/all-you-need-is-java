@@ -1,14 +1,10 @@
 {
   "name": "ui",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "description": "This package.json file is used to specify the current TailwindCSS version.",
   "devDependencies": {
-    "tailwindcss": "^4.0.12",
-    "@tailwindcss/cli": "^4.0.12"
+    "tailwindcss": "^4.0.15",
+    "@tailwindcss/cli": "^4.0.15"
   },
   "private": true
 }
